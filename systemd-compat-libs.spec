@@ -11,13 +11,14 @@
 Name:           systemd-compat-libs
 Url:            https://github.com/facebookincubator/systemd-compat-libs
 Version:        239
-Release:        1.fb1
+Release:        1%{?dist}.1
 # For a breakdown of the licensing, see README
 License:        LGPLv2+
 Summary:        Compatibility libraries for systemd
 
 Source0:        https://github.com/facebookincubator/systemd-compat-libs/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
 Source1:        https://github.com/systemd/systemd/archive/v%{version}.tar.gz#/systemd-%{version}.tar.gz
+Source2:        0001-meson-remove-mount-version-check.patch
 
 BuildRequires:  meson >= 0.44
 BuildRequires:  git
@@ -53,6 +54,15 @@ to systemd-compat-libs.
 %autopatch -p1
 mkdir -p subprojects/packagecache
 cp -p %SOURCE1 subprojects/packagecache/
+
+cd subprojects/packagecache/
+tar -xzf %SOURCE1
+cd systemd-%version
+patch -p1 -i %SOURCE2
+cd ..
+rm systemd-%version.tar.gz
+tar -czf systemd-%version.tar.gz systemd-%version
+rm -rf systemd-%version
 
 %build
 export LANG=en_US.UTF-8
